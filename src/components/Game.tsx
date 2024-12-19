@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 
 export const Game = () => {
+  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
   const [isJumping, setIsJumping] = useState(false);
   const [isCrouching, setIsCrouching] = useState(false);
   const [position, setPosition] = useState({ x: 100, y: 0 });
@@ -13,9 +14,18 @@ export const Game = () => {
   const [currentFrame, setCurrentFrame] = useState(1);
   const [canJump, setCanJump] = useState(true);
   const [debug, setDebug] = useState(false);
-  const [gatePosition, setGatePosition] = useState({ x: window.innerWidth - 200, y: 20 }); 
+  const [gatePosition, setGatePosition] = useState({ x: 0, y: 0 }); 
   const [backgroundPosition, setBackgroundPosition] = useState(0);
   const [hasReachedWall, setHasReachedWall] = useState(false);
+
+  useEffect(() => {
+    // Client-side-only code
+    setWindowSize({
+      width: window.innerWidth,
+      height: window.innerHeight
+    });
+    setGatePosition({ x: window.innerWidth - 200, y: 20 });
+  }, []);
 
   const GAME_SPEED = 8; 
   const MOVE_SPEED = 15;
@@ -25,7 +35,7 @@ export const Game = () => {
   const JUMP_DURATION = 500;
   const CROUCH_HEIGHT = CHARACTER_SIZE / 2; 
   const GATE_SPEED = GAME_SPEED * 4; 
-  const INVISIBLE_WALL_X = window.innerWidth * 0.35;
+  const INVISIBLE_WALL_X = windowSize.width * 0.35;
 
   const FRAMES = {
     idle: 11,
@@ -88,10 +98,10 @@ export const Game = () => {
         const speedMultiplier = Math.max(1, (1000 / distanceToCharacter) * 2);
         newX += (GATE_SPEED * speedMultiplier - GAME_SPEED);
 
-        if (newX >= window.innerWidth - 200) {
-          newX = window.innerWidth - 200;
-        } else if (newX <= window.innerWidth * 0.7) {
-          newX = window.innerWidth * 0.7;
+        if (newX >= windowSize.width - 200) {
+          newX = windowSize.width - 200;
+        } else if (newX <= windowSize.width * 0.7) {
+          newX = windowSize.width * 0.7;
         }
 
         return { ...prev, x: newX };
@@ -154,7 +164,7 @@ export const Game = () => {
         case 'ArrowRight':
           setDirection('right');
           setIsMoving(true);
-          setPosition(prev => ({ ...prev, x: Math.min(window.innerWidth - CHARACTER_SIZE, prev.x + MOVE_SPEED) }));
+          setPosition(prev => ({ ...prev, x: Math.min(windowSize.width - CHARACTER_SIZE, prev.x + MOVE_SPEED) }));
           break;
         case 'ArrowUp':
         case 'Space':
